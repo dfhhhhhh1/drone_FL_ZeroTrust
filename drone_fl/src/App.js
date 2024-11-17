@@ -4,6 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Register from './SignIn/Register';
 import Login from './SignIn/Login';
+import Profile from './SignIn/Profile';
+import ProtectedRoute from './Authentication/ProtectedRoute';
 
 // function App() {
 //   return (
@@ -32,7 +34,12 @@ const App = () => {
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-
+        <Route path="/profile" element = {
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+        />
       </Routes>
     </Router>
   )

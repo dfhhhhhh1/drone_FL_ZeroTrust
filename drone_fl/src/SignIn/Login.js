@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Card, Form, Button } from 'react-bootstrap';
+import axios from 'axios';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -9,6 +10,8 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        axios.post('/api/login/', { email, password }, { withCredentials: true }).then(res => {});
 
         navigate('/Home');
     };
