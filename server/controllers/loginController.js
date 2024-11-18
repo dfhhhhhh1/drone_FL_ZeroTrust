@@ -15,19 +15,42 @@ const generateLoginToken = async (req, user) => {
         ip: req.ip
     });
 
-    return loginToken;
+    return jwt.sign(
+        { loginToken: loginToken },
+        process.env.JWT_KEY,
+        { expiresIn: "5m" }
+    );
 }
 
-const validateLoginToken = async (loginToken, user, ip) => {
+const addLoginCookie = async (res, req, user) => {
+    res.cookie("loginToken", await generateLoginToken(req, user), {
+        httpOnly: true,
+        secure:  false, // True in production
+        sameSite: "strict",
+        maxAge: 5 * 60 * 1000
+    });
+}
+
+const validateLoginToken = async (req, user) => {
+    const loginTokenCookie = req.cookies.loginToken;
+
+    if (loginTokenCookie == null) {
+        return false;
+    }
+
+    const loginToken = jwt.verify(loginTokenCookie, process.env.JWT_KEY);
+    if (loginToken == null) {
+        return false;
+    }
+
     const token = await LoginToken.findOne({
-        token: loginToken,
+        token: loginToken.loginToken,
         userId: user._id,
-        ip: ip,
+        ip: req.ip,
     });
 
     if (token) {
         await LoginToken.findByIdAndDelete(token._id);
-
         return true;
     }
 
@@ -42,7 +65,7 @@ const generateToken = (email) => {
     );
 }
 
-const addCookie = (res, email) => {
+const addAuthCookie = (res, email) => {
     res.cookie("authToken", generateToken(email), {
         httpOnly: true,
         secure:  false, // True in production
@@ -56,12 +79,12 @@ const validateToken = async (req, res) => {
 }
 
 const validate2FA = async (req, res) => {
-    const { email, otpToken, loginToken } = req.body;
+    const { email, otpToken } = req.body;
 
     const user = await User.findOne({ email: email });
 
     if (otpToken && user) {
-        const loginValidated = await validateLoginToken(loginToken, user, req.ip);
+        const loginValidated = await validateLoginToken(req, user);
 
         const totpVerified = speakeasy.totp.verify({
             secret: user.otpkey,
@@ -70,8 +93,9 @@ const validate2FA = async (req, res) => {
         });
 
         if (totpVerified && loginValidated) {
+            res.clearCookie("loginToken");
             res.clearCookie("authToken");
-            addCookie(res, email);
+            addAuthCookie(res, email);
 
             return res.status(200).json({ message: "Success" });
         }
@@ -87,9 +111,10 @@ const loginUser = async (req, res) => {
     // Verifies the user exists and the entered email/pass combination is valid.
     if (user) {
         if (await bcrypt.compare(password, user.password)) {
-            const loginToken = await generateLoginToken(req, user);
+            res.clearCookie("loginToken");
+            await addLoginCookie(res, req, user);
             
-            return res.status(200).json({ message: "Success", loginToken: loginToken });
+            return res.status(200).json({ message: "Success" });
         }
     }
     return res.status(400).json({ error: "Invalid email or password" });
