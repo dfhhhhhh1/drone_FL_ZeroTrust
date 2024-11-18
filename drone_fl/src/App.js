@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Register from './SignIn/Register';
 import Login from './SignIn/Login';
+import TwoFactorAuth from './SignIn/TwoFactorAuth'
 import Profile from './SignIn/Profile';
 import ProtectedRoute from './Authentication/ProtectedRoute';
 
@@ -33,7 +34,9 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/twoFactorAuth' element={<TwoFactorAuth />} />
         <Route path="/profile" element = {
           <ProtectedRoute>
             <Profile />

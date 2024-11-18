@@ -8,12 +8,21 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        axios.post('/api/login/', { email, password }, { withCredentials: true }).then(res => {});
+        try {
+            await axios.post('/api/login/', 
+                { email, password }, 
+                { withCredentials: true } );
+            
+            navigate('/TwoFactorAuth', {state: { email }});
 
-        navigate('/Home');
+        } catch (error) {
+            alert("Login failed.")
+        }
+
+        //navigate('/TwoFactorAuth');
     };
 
     return (
