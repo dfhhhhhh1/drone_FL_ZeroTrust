@@ -10,5 +10,6 @@ router.get('/info', authenticator.authenticateToken, loginController.getUserInfo
 router.get('/logout', loginController.logoutUser);
 
 router.post('/register', loginController.registerUser);
+router.post('/two-factor', loginController.validate2FA);
 
 module.exports = router;

@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema({
         minLength: [8, 'Password must be at least 8 characters'],
         maxLength: [16, 'Password cannot exceed 16 characters'],
     }, 
+    otpkey: {
+        type: String,
+        required: [true, 'This field is required'],
+        trim: true
+    }
 })
 
 // Runs after validation, but before creation. 
