@@ -36,3 +36,42 @@
     transform: rotate(360deg);
   }
 }
+
+/* Global styles */
+body.dark {
+  background-color: #121212;
+  color: #fff;
+}
+
+body.light {
+  background-color: #f4f4f4;
+  color: #000;
+}
+
+.card-dark {
+  background-color: #333;
+  color: white;
+}
+
+.card-light {
+  background-color: white;
+  color: black;
+}
+
+.navbar-dark {
+  background-color: #333;
+}
+
+.navbar-light {
+  background-color: #f8f9fa;
+}
+
+
+.drone-icon-dark {
+  filter: none;  
+}
+
+
+.drone-icon-light {
+  filter: invert(0.3) brightness(1.4); 
+}
