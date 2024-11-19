@@ -16,7 +16,7 @@ const Login = () => {
                 { email, password }, 
                 { withCredentials: true } );
             
-            navigate('/TwoFactorAuth', {state: { email }});
+            navigate('/twoFactorAuth', {state: { email }});
 
         } catch (error) {
             alert("Login failed.")
@@ -43,7 +43,7 @@ const Login = () => {
                                     <Button variant='primary' type='submit'>Login</Button>
                                 </div>
                             </Form>
-                            <p className='text-center'>Don't have an account <Link to='/Register'>Register here</Link></p>
+                            <p className='text-center'>Don't have an account <Link to='/register'>Register here</Link></p>
 
                         </Card.Body>
                     </Card>

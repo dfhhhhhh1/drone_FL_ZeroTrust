@@ -14,7 +14,7 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if(password != confirmPass) {
+        if(password !== confirmPass) {
             alert("Passwords don't match");
             return;
         }
@@ -34,7 +34,7 @@ const Register = () => {
     };
 
     const handleNext = () => {
-        navigate('/Login');
+        navigate('/login');
     }
 
     return (
@@ -76,7 +76,7 @@ const Register = () => {
                                             <Button variant='primary' type='submit'>Register</Button>
                                         </div>
                                     </Form>
-                                    <p className='text-center'>Already have an account? <Link to='/Login'>Login here</Link></p>
+                                    <p className='text-center'>Already have an account? <Link to='/login'>Login here</Link></p>
                                 </Container>
                             )}
                         </Card.Body>

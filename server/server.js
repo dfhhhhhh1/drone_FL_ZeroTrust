@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config('./.env');
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
@@ -13,7 +13,7 @@ app.use(cookieParser());
 
 app.use('/api/login', loginRoutes);
 
-mongoose.connect(process.env.MongoDB)
+mongoose.connect(process.env.MONGODB)
     .then(() => {
         app.listen(PORT, () => {
             console.log(`Listening on ${PORT}`);

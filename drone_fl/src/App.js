@@ -7,6 +7,29 @@ import Login from './SignIn/Login';
 import TwoFactorAuth from './SignIn/TwoFactorAuth'
 import Profile from './SignIn/Profile';
 import ProtectedRoute from './Authentication/ProtectedRoute';
+import Home from './Dashboard/Home'
+
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Login />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/twoFactorAuth' element={<TwoFactorAuth />} />
+        <Route path="/home" element = {
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+        />
+      </Routes>
+    </Router>
+  )
+}
+
+export default App;
 
 // function App() {
 //   return (
@@ -28,24 +51,3 @@ import ProtectedRoute from './Authentication/ProtectedRoute';
 //     </div>
 //   );
 // }
-
-const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Login />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/twoFactorAuth' element={<TwoFactorAuth />} />
-        <Route path="/profile" element = {
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-        />
-      </Routes>
-    </Router>
-  )
-}
-
-export default App;

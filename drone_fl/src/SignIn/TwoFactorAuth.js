@@ -19,7 +19,7 @@ const TwoFactorAuth = ({ qrCode, onVerify }) => {
             { email, otpToken: code }, 
             { withCredentials: true } );
 
-            navigate('/Home')
+            navigate('/home')
         } catch (error) {
             alert("Login failed.");
             console.log(error);
