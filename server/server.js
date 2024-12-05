@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 
 const loginRoutes = require('./routes/login');
+const projectRoutes = require('./routes/project');
 
 const PORT = 3001;
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/login', loginRoutes);
+app.use('/api/project', projectRoutes);
 
 mongoose.connect(process.env.MONGODB)
     .then(() => {

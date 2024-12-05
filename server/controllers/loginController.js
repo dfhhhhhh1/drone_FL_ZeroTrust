@@ -108,16 +108,20 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email: email });
 
-    // Verifies the user exists and the entered email/pass combination is valid.
-    if (user) {
-        if (await bcrypt.compare(password, user.password)) {
-            res.clearCookie("loginToken");
-            await addLoginCookie(res, req, user);
-            
-            return res.status(200).json({ message: "Success" });
+    try { // Verifies the user exists and the entered email/pass combination is valid.
+        if (user) {
+            if (await bcrypt.compare(password, user.password)) {
+                res.clearCookie("loginToken");
+                await addLoginCookie(res, req, user);
+                
+                return res.status(200).json({ message: "Success" });
+            }
         }
+
+        return res.status(400).json({ error: "Invalid email or password" });
+
     }
-    return res.status(400).json({ error: "Invalid email or password" });
+    catch (error) { res.status(400).json({ error: "Invalid email or password" }); }
 }
 
 const getUserInfo = async (req, res) => {
