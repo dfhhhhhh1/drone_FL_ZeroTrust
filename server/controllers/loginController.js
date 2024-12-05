@@ -9,6 +9,11 @@ const crypto = require('crypto');
 const generateLoginToken = async (req, user) => {
     const loginToken = crypto.randomBytes(32).toString('hex');
 
+    try {
+        await LoginToken.findOneAndDelete({ userId: user._id });
+    }
+    catch (error) { };
+
     await LoginToken.create({
         token: loginToken,
         userId: user._id,
@@ -125,9 +130,7 @@ const loginUser = async (req, res) => {
 }
 
 const getUserInfo = async (req, res) => {
-    const { email, password } = req.body;
-
-    res.status(200).json({ message: "Validated" });
+    res.status(200).json({ email: req.user.email });
 }
 
 const logoutUser = async (req, res) => {

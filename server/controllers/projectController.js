@@ -22,13 +22,13 @@ const createProject = async (req, res) => {
 }
 
 const getProjectsWithAccess = async(req, res) => {
-    const { email, index, count } = req.body;
+    let { email, index, count } = req.query;
 
-    if (!req.body.hasOwnProperty('index')) {
+    if (!req.query.hasOwnProperty('index')) {
         index = 0;
     }
 
-    if (!req.body.hasOwnProperty('count')) {
+    if (!req.query.hasOwnProperty('count')) {
         count = 10;
     }
 

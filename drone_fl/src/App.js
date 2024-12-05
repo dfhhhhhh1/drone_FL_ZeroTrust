@@ -8,6 +8,8 @@ import TwoFactorAuth from './SignIn/TwoFactorAuth'
 import Profile from './SignIn/Profile';
 import ProtectedRoute from './Authentication/ProtectedRoute';
 import Home from './Dashboard/Home'
+import ProjectList from './Project/Projects';
+import ProjectCreate from './Project/Create';
 
 
 const App = () => {
@@ -21,6 +23,18 @@ const App = () => {
         <Route path="/home" element = {
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/projects/create" element={
+          <ProtectedRoute>
+            <ProjectCreate />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/projects" element={
+          <ProtectedRoute>
+            <ProjectList />
           </ProtectedRoute>
         }
         />
