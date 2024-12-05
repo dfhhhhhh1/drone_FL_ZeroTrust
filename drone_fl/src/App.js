@@ -10,6 +10,8 @@ import ProtectedRoute from './Authentication/ProtectedRoute';
 import Home from './Dashboard/Home'
 import ProjectList from './Project/Projects';
 import ProjectCreate from './Project/Create';
+import Event from './Dashboard/event';
+import TriggerEvent from './Dashboard/event';
 
 
 const App = () => {
@@ -20,6 +22,7 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path='/login' element={<Login />} />
         <Route path='/twoFactorAuth' element={<TwoFactorAuth />} />
+        <Route path='/event' element={<TriggerEvent />} />
         <Route path="/home" element = {
           <ProtectedRoute>
             <Home />
