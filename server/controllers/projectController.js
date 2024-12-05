@@ -81,15 +81,13 @@ const isAuthorizedRole = async(req, projectName) => {
 }
 
 const getAllMembers = async(req, res) => {
-    let { name } = req.query;
-
+    let name = req.params.name;
     try {
-        const project = await Project.findOne({ name });
+        const project = await Project.findOne({ name }).populate("members.user").populate("unassigned.user");
         const members = {
             current: project.members,
             unassigned: project.unassigned
         }
-
         const isAdmin = await isAuthorizedRole(req, name);
 
         return res.status(200).json({ members, isAdmin });

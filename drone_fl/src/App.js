@@ -12,6 +12,7 @@ import ProjectList from './Project/Projects';
 import ProjectCreate from './Project/Create';
 import Event from './Dashboard/event';
 import TriggerEvent from './Dashboard/event';
+import MemberList from './Project/MemberList';
 
 
 const App = () => {
@@ -22,7 +23,6 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path='/login' element={<Login />} />
         <Route path='/twoFactorAuth' element={<TwoFactorAuth />} />
-        <Route path='/event' element={<TriggerEvent />} />
         <Route path="/home" element = {
           <ProtectedRoute>
             <Home />
@@ -38,6 +38,18 @@ const App = () => {
         <Route path="/projects" element={
           <ProtectedRoute>
             <ProjectList />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/event" element = {
+          <ProtectedRoute>
+            <TriggerEvent />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/projects/memberlist/:name" element = {
+          <ProtectedRoute>
+            <MemberList />
           </ProtectedRoute>
         }
         />

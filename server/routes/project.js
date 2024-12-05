@@ -11,7 +11,7 @@ router.post('/addUnassigned', authenticator.authenticateToken, projectController
 router.post('/addMember', authenticator.authenticateToken, projectController.addMember);
 // name: project name
 // members: current: [], unassigned: []     isAdmin: bool for current admin
-router.get('/members', authenticator.authenticateToken, projectController.getAllMembers);
+router.get('/members/:name', authenticator.authenticateToken, projectController.getAllMembers);
 // email: user's email, index: index of page, count: number of entries
 // projects: [ name: project's name, hasUser: if user is in project ]
 router.get('/listWithAccess', authenticator.authenticateToken, projectController.getProjectsWithAccess);

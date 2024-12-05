@@ -55,6 +55,10 @@ const Projects = () => {
         }
     }
 
+    const handleViewMembersButton = async (name) => {
+        navigate(`./memberlist/${name}`);
+    }
+
     const handleCreateButton = () => {
         navigate('./create');
     }
@@ -73,6 +77,7 @@ const Projects = () => {
                             <Card className='d-flex flex-row justify-content-between align-items-center mb-3 p-3'>
                                 <h5>{project.name}</h5>
                                 <div className='d-flex align-items-center'>
+                                    <Button className='m-3' variant='success' onClick={() => handleViewMembersButton(project.name)}>View Members</Button>
                                     {project.hasUser === true ? (
                                         <Button variant="primary" onClick={handleValidButton}>Dashboard</Button>
                                     ) : (
