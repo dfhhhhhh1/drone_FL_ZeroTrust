@@ -14,7 +14,7 @@ const generateLoginToken = async (req, user) => {
     }
     catch (error) { };
 
-    await LoginToken.create({
+    const log = await LoginToken.create({
         token: loginToken,
         userId: user._id,
         ip: req.ip
@@ -89,20 +89,22 @@ const validate2FA = async (req, res) => {
     const user = await User.findOne({ email: email });
 
     if (otpToken && user) {
-        const loginValidated = await validateLoginToken(req, user);
-
-        const totpVerified = speakeasy.totp.verify({
+        const totpVerified = await speakeasy.totp.verify({
             secret: user.otpkey,
             encoding: 'base32',
             token: otpToken
         });
 
-        if (totpVerified && loginValidated) {
-            res.clearCookie("loginToken");
-            res.clearCookie("authToken");
-            addAuthCookie(res, email);
+        if (totpVerified) {
+            const loginValidated = await validateLoginToken(req, user);
 
-            return res.status(200).json({ message: "Success" });
+            if (loginValidated) {
+                res.clearCookie("loginToken");
+                res.clearCookie("authToken");
+                addAuthCookie(res, email);
+    
+                return res.status(200).json({ message: "Success" });
+            }
         }
     }
     return res.status(400).json({ error: "Invalid email or token" });

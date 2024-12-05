@@ -38,6 +38,10 @@ const Projects = () => {
         navigate('/home');
     }
 
+    const handleCreateButton = () => {
+        navigate('./create');
+    }
+
     if (loading) {
         return <div>Projects loading...</div>
     }
@@ -55,11 +59,14 @@ const Projects = () => {
                                     {project.hasUser === true ? (
                                         <Button variant="primary" onClick={handleValidButton}>Dashboard</Button>
                                     ) : (
-                                        <Button variant="Secondary">Ask to join</Button>
+                                        <Button variant="secondary">Ask To Join</Button>
                                     )}
                                 </div>
                             </Card>
                         ))}
+                        <div className='d-flex align-items-center justify-content-center'>
+                            <Button onClick={handleCreateButton}>Create Project</Button>
+                        </div>
                     </Container>
                 </Card.Body>
             </Card>
