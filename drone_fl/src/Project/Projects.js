@@ -38,6 +38,23 @@ const Projects = () => {
         navigate('/home');
     }
 
+    const handleAskToJoinButton = async (projectName) => {
+        try {
+            const emailRes = await axios.get('/api/login/info',
+                { withCredentials: true }
+            );
+
+            await axios.post('/api/project/addUnassigned',
+                { name: projectName, email: emailRes.data.email },
+                { withCredentials: true}
+            );
+
+            alert("Success!");
+        } catch (error) {
+            alert("Could not ask to join.");
+        }
+    }
+
     const handleCreateButton = () => {
         navigate('./create');
     }
@@ -59,7 +76,7 @@ const Projects = () => {
                                     {project.hasUser === true ? (
                                         <Button variant="primary" onClick={handleValidButton}>Dashboard</Button>
                                     ) : (
-                                        <Button variant="secondary">Ask To Join</Button>
+                                        <Button variant="secondary" onClick={() => handleAskToJoinButton(project.name)}>Ask To Join</Button>
                                     )}
                                 </div>
                             </Card>

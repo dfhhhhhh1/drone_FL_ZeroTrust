@@ -95,10 +95,14 @@ const validate2FA = async (req, res) => {
             token: otpToken
         });
 
+        console.log("HELLO");
+
         if (totpVerified) {
             const loginValidated = await validateLoginToken(req, user);
 
+            console.log("HI");
             if (loginValidated) {
+                console.log("WAA");
                 res.clearCookie("loginToken");
                 res.clearCookie("authToken");
                 addAuthCookie(res, email);

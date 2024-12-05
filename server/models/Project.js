@@ -8,7 +8,7 @@ const memberSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['Admin', 'Editor', 'Viewer'],
+        enum: ['Admin', 'Editor', 'Viewer', 'Unassigned'],
         required: true
     }
 });
@@ -19,7 +19,8 @@ const projectSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    members: [ memberSchema ]
+    members: [ memberSchema ],
+    unassigned: [ memberSchema ]
 });
 
 module.exports = mongoose.model("Project", projectSchema);
