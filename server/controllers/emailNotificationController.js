@@ -1,4 +1,4 @@
-
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 const Project = require('../models/Project'); // Adjust the path to your model
 
@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   secure: false, // Use true for port 465
   auth: {
     user: 'federatedlearningzerotrust@gmail.com',
-    pass: 'ozwr ctck osvu cclo',
+    pass: process.env.EMAIL_PASS,
   },
 });
 
