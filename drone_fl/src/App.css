@@ -44,7 +44,7 @@ body.dark {
 }
 
 body.light {
-  background-color: #f4f4f4;
+  background-color: #fffef8;
   color: #000;
 }
 
@@ -63,7 +63,7 @@ body.light {
 }
 
 .navbar-light {
-  background-color: #f8f9fa;
+  background-color: #fffdf1;
 }
 
 
@@ -74,4 +74,58 @@ body.light {
 
 .drone-icon-light {
   filter: invert(0.3) brightness(1.4); 
+}
+
+.dark-mode-select,.dark-mode-select option {
+  background-color: #343a40!important;
+  color: #fff!important;
+}
+
+.light-mode-select,.light-mode-select option {
+  background-color: #fff!important;
+  color: #000!important;
+}
+		
+.dark-mode-select,.light-mode-select,.dark-mode-input,.light-mode-input{
+  padding: 20px 20px!important; 
+  font-size: 20px!important; 
+  border-radius: 5px!important; 
+  cursor: pointer!important; 
+  transition: background-color 0.3s ease-in-out!important;  
+}
+
+.dark-mode-select:hover,.dark-mode-input:hover {
+  background-color: #2f3338!important; 
+}
+
+.light-mode-select:hover,.light-mode-input:hover {
+  background-color: #ebebeb!important; 
+}
+
+.dark-mode-input,.dark-mode-input:focus {
+  background-color: #343a40!important;
+  color: #fff!important;
+  border-color: #343a40!important;
+}
+
+.light-mode-input,.light-mode-input:focus {
+  background-color: #fff!important;
+  color: #000!important;
+  border-color: #ddd!important;
+}
+
+.blink {
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }

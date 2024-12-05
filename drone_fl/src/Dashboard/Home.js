@@ -13,6 +13,7 @@ import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
 import { HeatmapLayer } from 'react-leaflet-heatmap-layer-v3';
 import debounce from 'lodash.debounce';
+import { Bar } from'react-chartjs-2';
 
 
 //Import drone images for different battery levels
@@ -23,16 +24,18 @@ import droneImg4 from '../droneImg4.png';
 import droneImg5 from '../droneImg5.png';
 
 const Home = () => {
+
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [tileLayerUrl, setTileLayerUrl] = useState(
       'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
     );
-  
+    const [selectedModel, setSelectedModel] = useState('botiot_reduced');
     const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const initialData = [0, 2, 3, 1, 5, 3, 7, 9, 14, 6, 11, 4];
     const [isMdScreen, setIsMdScreen] = useState(false);
+    const [lastIntrusionTime, setLastIntrusionTime] = useState(null);
 
-    const [timeRange, setTimeRange] = useState([0, 4]); // Initial time range
+    const [timeRange, setTimeRange] = useState([0, 4]); 
     const [chartData, setChartData] = useState({
       labels: allMonths,
       datasets: [
@@ -46,23 +49,89 @@ const Home = () => {
       ],
     });
 
+    //Get Data from Flask API
 
+    const [data, setData] = useState({});
+
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const response = await fetch('http://127.0.0.1:5000/data');
+            const data = await response.json();
+            console.log('Data fetched:', data); //Log the entire data object
+            console.log('botiot_reduced accuracy:', data.botiot_reduced.metrics.acc); //Log a specific value
+            console.log('cicids_reduced recall:', data.cicids_reduced.metrics.rec);
+            setData(data);
+          } catch (error) {
+            console.error(error);
+          }
+        };
+        fetchData();
+      }, []);
+      
+
+
+      const BarChart = ({ data }) => {
+        const chartData = {
+            labels: Object.keys(data),
+            datasets: [
+              {
+                label: 'Accuracy',
+                data: Object.values(data).map((model) => model.metrics.acc),
+                backgroundColor: Object.keys(data).map((model) => model === selectedModel? 'rgba(255, 99, 132, 1)' : 'rgba(255, 99, 132, 0.2)'),
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+              },
+              {
+                label: 'Recall',
+                data: Object.values(data).map((model) => model.metrics.rec),
+                backgroundColor: Object.keys(data).map((model) => model === selectedModel? 'rgba(54, 162, 235, 1)' : 'rgba(54, 162, 235, 0.2)'),
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+              },
+              {
+                label: 'Precision',
+                data: Object.values(data).map((model) => model.metrics.prec),
+                backgroundColor: Object.keys(data).map((model) => model === selectedModel? 'rgba(255, 206, 86, 1)' : 'rgba(255, 206, 86, 0.2)'),
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 1,
+              },
+            ],
+          };
+        return (
+            <Bar
+              data={chartData}
+              options={{ title: { display: true, text: 'Model Comparison' } }}
+            />
+          );
+        };
+
+    useEffect(() => {
+        console.log('BarChart component updated');
+      }, [data]);
+          
+      const BarChartComponent = useMemo(() => {
+        return <BarChart data={data} />;
+      }, [data, selectedModel]);
+
+
+                  
 
     useEffect(() => {
         const handleResize = () => {
-          setIsMdScreen(window.innerWidth >= 768 && window.innerWidth < 992); // md screen width
+          setIsMdScreen(window.innerWidth >= 768 && window.innerWidth < 992); //md screen width
         };
     
         window.addEventListener('resize', handleResize);
-        handleResize(); // Call it initially to set the state
+        handleResize(); 
     
         return () => window.removeEventListener('resize', handleResize);
       }, []);
 
       const marks = allMonths.map((month, index) => {
-        const isVisible = isMdScreen ? index % 2 === 0 : true; // Apply index % 2 === 0 only for md screens
+        const isVisible = isMdScreen ? index % 2 === 0 : true; //Apply index % 2 === 0 only for md screens
         
-        // Define the color for dark mode or light mode
+        //Define the color for dark mode or light mode
         const textColor = isDarkMode ? 'white' : 'black';
       
         return {
@@ -227,7 +296,7 @@ const getFilteredDrones = useCallback(() => {
   };
 
   //Function to get the icon based on battery level
-  const getDroneIcon = (batteryLevel) => {
+  const getDroneIcon = useCallback((batteryLevel) => {
     let iconUrl;
     if (batteryLevel > 75) {
       iconUrl = droneImg1;
@@ -240,10 +309,9 @@ const getFilteredDrones = useCallback(() => {
     } else {
       iconUrl = droneImg5;
     }
-
-    const iconClass = isDarkMode ? 'drone-icon-light' : 'drone-icon-dark';
-
-
+  
+    const iconClass = isDarkMode? 'drone-icon-light' : 'drone-icon-dark';
+  
     return new L.Icon({
       iconUrl: iconUrl,
       iconSize: [40, 40],
@@ -252,30 +320,117 @@ const getFilteredDrones = useCallback(() => {
       shadowSize: [0, 0],
       className: iconClass,
     });
-  };
+  }, [isDarkMode, droneImg1, droneImg2, droneImg3, droneImg4, droneImg5]);
 
-  const clusterIconCreate = (cluster) => {
-    const count = cluster.getChildCount();
-    const size = Math.min(60, 20 + (count * 4)); 
-    return new L.DivIcon({
-      html: `<div style="background-color: rgba(0, 123, 255, 0.8); color: white; width: ${size}px; height: ${size}px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: ${Math.min(16, size / 3)}px;">
-               ${count}
-             </div>`,
-      className: 'leaflet-cluster-icon',
-      iconSize: new L.Point(size, size),
-    });
-  };
+  function formatTimeSinceLastIntrusion(timeValue) {
+    const seconds = Math.floor(timeValue % 60);
+    const minutes = Math.floor((timeValue / 60) % 60);
+    const hours = Math.floor(timeValue / 3600);
+  
+    if (hours > 0) {
+        return (
+          <span>
+            {hours} hours, {minutes} minutes, <span className="blink">{seconds}</span> seconds ago
+          </span>
+        );
+      } else if (minutes > 0) {
+        return (
+          <span>
+            {minutes} minutes, <span className="blink">{seconds}</span> seconds ago
+          </span>
+        );
+      } else {
+        return (
+          <span>
+            <span className="blink">{seconds}</span> seconds ago
+          </span>
+        );
+      }
+    }
+    const [timeValue, setTimeValue] = useState(2 * 60 * 60); //2 hours ago
+  
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setTimeValue(timeValue + 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }, [timeValue]);
+
+
+
+    const MarkerClusterGroupComponent = useMemo(() => {
+        const clusterIconCreate = (cluster) => {
+          const count = cluster.getChildCount();
+          const size = Math.min(60, 20 + (count * 4)); 
+          return new L.DivIcon({
+            html: `<div style="background-color: rgba(0, 123, 255, 0.8); color: white; width: ${size}px; height: ${size}px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: ${Math.min(16, size / 3)}px;">
+                     ${count}
+                   </div>`,
+            className: 'leaflet-cluster-icon',
+            iconSize: new L.Point(size, size),
+          });
+        };
+      
+        return (
+          <MarkerClusterGroup chunkedLoading iconCreateFunction={clusterIconCreate}>
+            {getFilteredDrones().map((drone) => (
+              <Marker
+                key={drone.id}
+                position={[drone.lat, drone.lng]}
+                icon={getDroneIcon(drone.battery)}
+              >
+                <Popup>
+                  {drone.name} - Battery: {drone.battery}% <br />
+                  Intrusions: {drone.intrusions} <br />
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
+        );
+      }, [getFilteredDrones, getDroneIcon]);
+  
+
+  useEffect(() => {
+    const handleNewIntrusion = () => {
+      setLastIntrusionTime(new Date());
+    };
+  
+    //Assuming you have a function that emits new intrusion events
+    const intrusionEmitter = new EventSource('/intrusion-events');
+  
+    intrusionEmitter.onmessage = (event) => {
+      if (event.data === 'new-intrusion') {
+        handleNewIntrusion();
+      }
+    };
+  
+    return () => {
+      //Clean up event listener
+      intrusionEmitter.close();
+    };
+  }, []);
 
   const cardStyle = {
     backgroundColor: isDarkMode ? '#343a40' : '#ffffff',
     color: isDarkMode ? '#fff' : '#000',
-    transition: 'background-color 0.8s ease, color 0.8s ease' // Add transition to the card
+    transition: 'background-color 0.8s ease, color 0.8s ease' 
   };
 
 
+    
+    const [thresholdValue, setThresholdValue] = useState(0.5);
+
+    const handleModelChange = (event) => {
+    setSelectedModel(event.target.value);
+    };
+
+    const handleThresholdChange = (event, newValue) => {
+    setThresholdValue(newValue);
+    };
+
   return (
     <>
-      <Navbar bg={isDarkMode ? 'dark' : 'light'} variant={isDarkMode ? 'dark' : 'light'} expand="lg" className="mb-4" style={{transition: 'background-color 0.8s ease, color 0.8s ease',}}>
+      <Navbar bg={isDarkMode ? 'dark' : 'light'} variant={isDarkMode ? 'dark' : 'light'} expand="lg" className="mb-4 fixed-top" style={{transition: 'background-color 0.8s ease, color 0.8s ease',}}>
         <Container>
           <Navbar.Brand as={Link} to="/home">Drone Dashboard</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -285,19 +440,20 @@ const getFilteredDrones = useCallback(() => {
               <Nav.Link as={Link} to="/login">Logout</Nav.Link>
             </Nav>
           </Navbar.Collapse>
+          <div style={{ position: 'fixed', top: '10px', right: '10px' }}>
+            <ReactToggle
+            defaultChecked={isDarkMode}
+            onChange={toggleDarkMode}
+            icons={false}
+            />
+        </div>
         </Container>
       </Navbar>
 
-      <div style={{ position: 'fixed', top: '10px', right: '10px' }}>
-        <ReactToggle
-          defaultChecked={isDarkMode}
-          onChange={toggleDarkMode}
-          icons={false}
-        />
-      </div>
+    
 
       <Container fluid>
-        <Row>
+        <Row style={{marginTop: '70px'}}>
           <Col md={7}>
             <Card className="mb-4" style={cardStyle}>
               <Card.Header>Drone Locations</Card.Header>
@@ -344,20 +500,7 @@ const getFilteredDrones = useCallback(() => {
                         useLocalExtrema={false}
                     />
 
-                    <MarkerClusterGroup chunkedLoading iconCreateFunction={clusterIconCreate}>
-                    {getFilteredDrones().map((drone) => (
-                        <Marker
-                        key={drone.id}
-                        position={[drone.lat, drone.lng]}
-                        icon={getDroneIcon(drone.battery)}
-                        >
-                        <Popup>
-                            {drone.name} - Battery: {drone.battery}% <br />
-                            Intrusions: {drone.intrusions} <br />
-                        </Popup>
-                        </Marker>
-                    ))}
-                    </MarkerClusterGroup>
+                    {MarkerClusterGroupComponent}
 
                 </MapContainer>
               </Card.Body>
@@ -435,19 +578,79 @@ const getFilteredDrones = useCallback(() => {
                 </Card>
             </Col>
         </Row>
-
         <Row>
-          <Col >
+            <Col md={5} sm={12}>
             <Card className="mb-4" style={cardStyle}>
-              <Card.Header>System Status</Card.Header>
-              <Card.Body>
+            <Card.Header style={{ fontSize: '24px' }}>System Status</Card.Header>
+            <Card.Body style={{ height: '300px', fontSize: '20px' }}>
                 <p>Active Drones: 50</p>
-                <p>Last Intrusion Detected: 2 hours ago</p>
-                <p>Zero Trust Status: Secure</p>
-              </Card.Body>
+                <p>Last Intrusion Detected: {formatTimeSinceLastIntrusion(timeValue)}</p>
+                <p style={{ color: 'green' }}>Zero Trust Status: Secure</p>
+            </Card.Body>
             </Card>
-          </Col>
+		
+            </Col>
+            <Col md={7} sm={12}>
+                <Card className="mb-4" style={cardStyle}>
+                <Card.Header>Model Comparison</Card.Header>
+                <Card.Body style={{ height: '400px' }}>
+                    {BarChartComponent}
+                </Card.Body>
+                </Card>
+            </Col>
         </Row>
+        <Card className="mb-4" style={cardStyle}>
+        <Card.Header>Model Selection and Threshold</Card.Header>
+        <Card.Body>
+            <Row>
+            <Col md={6}>
+                <h6>Select Model:</h6>
+                <select 
+                    className={`form-select ${isDarkMode? 'dark-mode-select' : 'light-mode-select'}`} 
+                    aria-label="Select Model" 
+                    value={selectedModel} 
+                    onChange={(e) => {
+                        handleModelChange(e);
+                        setSelectedModel(e.target.value);
+                      }}
+                > 
+                {Object.keys(data).map((model, index) => (
+                <option key={index} value={model}>{model}</option>
+                ))}
+                </select>
+                <p style={{fontSize:  '24px'}}>
+                    Recommended Threshold: {data[selectedModel] && data[selectedModel].threshold}
+                </p>
+            </Col>
+            <Col md={6}>
+                <h6>Threshold Value:</h6>
+                <Slider
+                value={thresholdValue}
+                onChange={handleThresholdChange}
+                valueLabelDisplay="auto"
+                min={0}
+                max={30}
+                step={0.001}
+                style={{ color: 'rgba(75,192,192,1)' }}
+                />
+                <div className="input-group mb-3">
+                    <input 
+                    type="number" 
+                    className={`form-control ${isDarkMode? 'dark-mode-input' : 'light-mode-input'}`} 
+                    aria-label="Threshold Value" 
+                    a   ria-describedby="basic-addon1" 
+                    value={thresholdValue} 
+                    onChange={(e) => handleThresholdChange(null, e.target.value)}
+                    />
+                    <span className={`input-group-text ${isDarkMode? 'dark-mode-input' : 'light-mode-input'}`} id="basic-addon1">Manual Entry</span>
+                </div>
+                <p>
+                Current Threshold: {thresholdValue}
+                </p>
+            </Col>
+            </Row>
+        </Card.Body>
+        </Card>
       </Container>
     </>
   );
